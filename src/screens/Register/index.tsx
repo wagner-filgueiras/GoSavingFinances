@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
-import { Modal } from 'react-native';
+import { 
+  Modal, 
+  TouchableWithoutFeedback, 
+  Keyboard,
+  Alert,
+ } from 'react-native';
 
+import * as Yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+
+ import { useForm } from 'react-hook-form';
+
+
+import { InputForm } from '../../components/Forms/InputForm';
 import { Input } from '../../components/Forms/Input';
 import { Button } from '../../components/Forms/Button';
 import { TransactionTypeButton } from '../../components/Forms/TransactionTypeButton';
@@ -14,8 +26,24 @@ import {
   Title,
   Form,
   Fields,
-  TransctionTypes
+  TransactionTypes
  } from './styles';
+
+ interface FormData {
+   name: string;
+   amount: string;
+ }
+
+ const schema = Yup.object().shape({
+  name: Yup
+  .string()
+  .required('Name is required'),
+  amount: Yup
+  .number()
+  .typeError('Please inform a numeric value')
+  .positive('The value must be positive')
+  .required('The amount is required')
+ });
 
 export function Register() {
   
@@ -27,6 +55,14 @@ export function Register() {
     name: 'Category'
   });
 
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema)
+  });
+
   function handleTransactionTypeSelect(type: 'up' | 'down') {
     setTransactionType(type);
   }
@@ -35,26 +71,58 @@ export function Register() {
     setCategoryModalOpen(true);
   }
 
-
   function handleCloseSelectCategoryModal() {
     setCategoryModalOpen(false);
   }
 
+  function handleRegister(form: FormData){
+    if (!transactionType)
+      return Alert.alert('Please, select the Transaction type!');
+
+    if(category.key === 'category')
+    return Alert.alert('Please, select the Category type!');
+
+    const data = { 
+      name: form.name,
+      amount: form.amount,
+      transactionType,
+      category: category.key
+    }
+
+    console.log(data);
+  }
+
   return (
+    //abaixo a maneira de esconder o teclado clicando em qualquer parte do app quando ele esta aberto
+  <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <Container>
+      
       <Header>
         <Title>Add Transaction</Title>
       </Header>
 
       <Form>
         <Fields>
-          <Input
+          <InputForm
+            name="name"
+            control={control}
             placeholder="Name"
+            // trabalha com a captalizacao do input
+            autoCapitalize="sentences"
+            // habilita ou desabilita o auto correct das palavras
+            autoCorrect={false}
+            error={errors.name && errors.name.message}
           />
-          <Input
+          
+          <InputForm
+            name="amount"
+            control={control}
             placeholder="Amount"
+            // verifique a disponibilidade do keyboardType para ambos os sistemas operacionais
+            keyboardType="numeric"
+            error={errors.amount && errors.amount.message}
           />
-          <TransctionTypes>
+          <TransactionTypes>
             <TransactionTypeButton 
               type="up"
               title="Income"
@@ -67,15 +135,22 @@ export function Register() {
               onPress={() => handleTransactionTypeSelect('down')}
               isActive ={transactionType === 'down'}
             />
-          </TransctionTypes>
+          </TransactionTypes>
 
           <CategorySelectButton 
+          // abaixo define a categoria selecionada pelo usuario no modal como
+          // o titulo da categoria do botao
           title={category.name}
+          // abre o modal de categorias utilizando uma funcao
           onPress= {handleOpenSelectCategoryModal}
           />
         </Fields>
         
-        <Button title="Send" />
+        <Button 
+        title="Send" 
+        onPress={handleSubmit(handleRegister)}
+        
+        />
         
       </Form>
 
@@ -90,6 +165,7 @@ export function Register() {
       
 
     </Container>
+  </TouchableWithoutFeedback>
 
   );
 }

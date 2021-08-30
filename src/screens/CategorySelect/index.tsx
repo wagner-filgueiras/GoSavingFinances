@@ -50,7 +50,10 @@ export function CategorySelect({
         keyExtractor={(item) => item.key}
         renderItem={({ item }) => (
           <Category
+          // chama a funcao que seleciona a categoria usa o set state
+          //para receber e setar o id e name da categoria como definido la em cima
             onPress={() => handleCategorySelect(item)}
+            // verifica se a categoria esta ativa
             isActive={category.key === item.key}
           >
             <Icon name={item.icon} />
