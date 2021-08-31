@@ -1,10 +1,11 @@
 import React from 'react';
-import { TouchableOpacityProps } from 'react-native';
+import { RectButtonProps } from 'react-native-gesture-handler';
 
 import { 
   Container,
   Icon,
-  Title
+  Title,
+  Button,
  } from './styles';
 
  const icons = {
@@ -12,7 +13,7 @@ import {
    down: 'arrow-down-circle'
  }
 
- interface Props extends TouchableOpacityProps {
+ interface Props extends RectButtonProps {
    type: 'up' | 'down';
    title: string;
    isActive: boolean;
@@ -29,7 +30,10 @@ import {
      <Container 
       isActive={isActive}
       type={type}
-      { ...rest } 
+      
+      >
+      <Button 
+        { ...rest } 
       >
        <Icon 
        name={icons[type]}
@@ -38,6 +42,7 @@ import {
           <Title>
             { title }
           </Title>
+      </Button>
      </Container>
    )
 
