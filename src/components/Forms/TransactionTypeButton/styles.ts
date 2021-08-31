@@ -26,7 +26,6 @@ ${({ isActive, type }) => isActive && type === 'up' && css`
     background-color: ${({ theme }) => theme.colors.success_light};
     border: none;
 `};
-
 `;
 
 export const Button = styled(RectButton)`
@@ -44,7 +43,6 @@ export const Icon = styled(Feather)<IconProps>`
   color: ${({ theme, type}) => 
   type == 'up' ? theme.colors.success : theme.colors.attention
   };
-
 `;
 
 export const Title = styled.Text`
