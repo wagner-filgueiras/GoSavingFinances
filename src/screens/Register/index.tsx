@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Modal, 
   TouchableWithoutFeedback, 
@@ -8,12 +8,13 @@ import {
 
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import  uuid from 'react-native-uuid';
 
  import { useForm } from 'react-hook-form';
 
 
 import { InputForm } from '../../components/Forms/InputForm';
-import { Input } from '../../components/Forms/Input';
 import { Button } from '../../components/Forms/Button';
 import { TransactionTypeButton } from '../../components/Forms/TransactionTypeButton';
 import { CategorySelectButton } from '../../components/Forms/CategorySelectButton';
@@ -50,6 +51,9 @@ export function Register() {
   const [transactionType, setTransactionType] = useState('');
   const [categoryModalOpen, setCategoryModalOpen] = useState(false); 
 
+  //define uma chave para a colecao (abaixo)
+  const dataKey = '@gofinances:transactions';
+
   const [category, setCategory] = useState({
     key: 'category',
     name: 'Category'
@@ -63,6 +67,7 @@ export function Register() {
     resolver: yupResolver(schema)
   });
 
+
   function handleTransactionTypeSelect(type: 'up' | 'down') {
     setTransactionType(type);
   }
@@ -75,22 +80,59 @@ export function Register() {
     setCategoryModalOpen(false);
   }
 
-  function handleRegister(form: FormData){
+  // adiciono o async para poder utilizar o await na gravacao dos dados abaixo
+  async function handleRegister(form: FormData){
     if (!transactionType)
       return Alert.alert('Please, select the Transaction type!');
 
     if(category.key === 'category')
     return Alert.alert('Please, select the Category type!');
 
-    const data = { 
+    const newTransaction = { 
+      id: String(uuid.v4()),
       name: form.name,
       amount: form.amount,
       transactionType,
-      category: category.key
+      category: category.key,
+      date: new Date()
     }
 
-    console.log(data);
+    try {
+      // recuperar os dados que ja estao gravados anteriormente
+      const data = await AsyncStorage.getItem(dataKey);
+      const currentData = data ? JSON.parse(data) : [];
+
+      // um array de objetos
+      const dataFormatted = [
+        //nesse novo objeto pego todos os dados salvos e passo ainda a nova transacao
+        ...currentData,
+        newTransaction
+      ];
+      // usamos o await aqui para aguardar a gravacao dos dados no dispositivo do usuario
+      // por isso utilizo o async function no inicio dessa funcao la em cima
+      await AsyncStorage.setItem(dataKey, JSON.stringify(dataFormatted));
+
+    } catch (error) {
+      console.log(error)
+      Alert.alert("Nao foi possivel salvar");
+    }
   }
+
+  useEffect(() => {
+    async function loadData(){
+      const data = await AsyncStorage.getItem(dataKey);
+      console.log(JSON.parse(data!));
+    }
+
+    loadData();
+
+    //como limpar uma colecao do asyncStorage pra comecar do zero 
+    // async function removeAll() {
+    //   await AsyncStorage.removeItem(dataKey);
+    // }
+
+    // removeAll();
+  }, []);
 
   return (
     //abaixo a maneira de esconder o teclado clicando em qualquer parte do app quando ele esta aberto
