@@ -43,7 +43,7 @@ export function AppRoutes(){
 
       <Screen 
       //nome da rota
-        name="Cadastrar"
+        name="Add"
       // component que sera renderizado
         component={Register}
         options={{

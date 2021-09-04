@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Modal, 
   TouchableWithoutFeedback, 
@@ -11,7 +11,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import  uuid from 'react-native-uuid';
 
- import { useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
+import { useNavigation } from '@react-navigation/native';
 
 
 import { InputForm } from '../../components/Forms/InputForm';
@@ -59,16 +60,19 @@ export function Register() {
     name: 'Category'
   });
 
+  const navigation = useNavigation();
+
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema)
   });
 
 
-  function handleTransactionTypeSelect(type: 'up' | 'down') {
+  function handleTransactionTypeSelect(type: 'positive' | 'negative') {
     setTransactionType(type);
   }
 
@@ -92,7 +96,7 @@ export function Register() {
       id: String(uuid.v4()),
       name: form.name,
       amount: form.amount,
-      transactionType,
+      type: transactionType,
       category: category.key,
       date: new Date()
     }
@@ -111,28 +115,21 @@ export function Register() {
       // usamos o await aqui para aguardar a gravacao dos dados no dispositivo do usuario
       // por isso utilizo o async function no inicio dessa funcao la em cima
       await AsyncStorage.setItem(dataKey, JSON.stringify(dataFormatted));
+      //limpar os campos do formulario
+      reset(),
+      setTransactionType(''),
+      setCategory({
+        key: 'category',
+        name: 'Category'
+      });
+
+      navigation.navigate('List');
 
     } catch (error) {
       console.log(error)
       Alert.alert("Nao foi possivel salvar");
     }
   }
-
-  useEffect(() => {
-    async function loadData(){
-      const data = await AsyncStorage.getItem(dataKey);
-      console.log(JSON.parse(data!));
-    }
-
-    loadData();
-
-    //como limpar uma colecao do asyncStorage pra comecar do zero 
-    // async function removeAll() {
-    //   await AsyncStorage.removeItem(dataKey);
-    // }
-
-    // removeAll();
-  }, []);
 
   return (
     //abaixo a maneira de esconder o teclado clicando em qualquer parte do app quando ele esta aberto
@@ -168,14 +165,14 @@ export function Register() {
             <TransactionTypeButton 
               type="up"
               title="Income"
-              onPress = {() => handleTransactionTypeSelect('up')}
-              isActive ={transactionType === 'up'}
+              onPress = {() => handleTransactionTypeSelect('positive')}
+              isActive ={transactionType === 'positive'}
             />
             <TransactionTypeButton 
               type="down"
               title="Outcome"
-              onPress={() => handleTransactionTypeSelect('down')}
-              isActive ={transactionType === 'down'}
+              onPress={() => handleTransactionTypeSelect('negative')}
+              isActive ={transactionType === 'negative'}
             />
           </TransactionTypes>
 
