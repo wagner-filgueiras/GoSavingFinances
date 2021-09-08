@@ -47,7 +47,7 @@ interface CategoryData {
 }
 
 export function Summary(){
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [ selectedDate, setSelectedDate ] = useState(new Date);
   const [totalByCategories, settotalByCategories] = useState<CategoryData[]>([]);
 
@@ -55,7 +55,6 @@ export function Summary(){
 
   // passo os parametros da acao se eh o icone de avancar ou recuar
   function handleDateChange(action: 'next' | 'prev'){
-    setIsLoading(true);
 
     if(action === 'next') {
       const newDate = addMonths( selectedDate, 1)
@@ -67,6 +66,7 @@ export function Summary(){
   }
 
   async function loadData() {
+    setIsLoading(true);
       //define uma chave para a colecao (abaixo)
     const dataKey = '@gofinances:transactions';
     // recuperar os dados que ja estao gravados anteriormente
@@ -126,14 +126,10 @@ export function Summary(){
   setIsLoading(false);
 }
 
-  useEffect(() => {
-    loadData();
-  }, [selectedDate]);
-
   // abaixo faz com que a lista seja recarreagada apos o cadastro de uma transacao
   useFocusEffect(useCallback(() => {
     loadData();
-  },[]));
+  },[selectedDate]));
 
 
 
