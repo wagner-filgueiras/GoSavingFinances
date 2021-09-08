@@ -154,9 +154,9 @@ export function Dashboard(){
     loadTransactions();
 
   // se eu quiser limpar a lista uso as 2 linhas abaixo
-  //const dataKey = '@gofinances:transactions';
-  //AsyncStorage.removeItem(dataKey);
-  }, []);
+  // const dataKey = '@gofinances:transactions';
+  // AsyncStorage.removeItem(dataKey);
+   }, []);
   // abaixo faz com que a lista seja recarreagada apos o cadastro de uma transacao
   useFocusEffect(useCallback(() => {
     loadTransactions();

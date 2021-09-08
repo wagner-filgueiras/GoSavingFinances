@@ -6,7 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { Dashboard } from '../screens/Dashboard';
 import { Register } from '../screens/Register';
-import { Resume } from '../screens/Resume';
+import { Summary } from '../screens/Summary';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
@@ -62,7 +62,7 @@ export function AppRoutes(){
       //nome da rota
         name="Summary"
       // component que sera renderizado
-        component={Resume}
+        component={Summary}
         options={{
           tabBarIcon: (({ size, color }) => (
             <MaterialIcons 
